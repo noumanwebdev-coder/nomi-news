@@ -3,9 +3,12 @@ import express from 'express'
 import cors from 'cors'
 import mongoose from 'mongoose'
 import Parser from 'rss-parser'
+import { dirname, resolve } from 'node:path'
+import { fileURLToPath } from 'node:url'
 
 const app = express()
 const port = process.env.PORT || 5000
+const distPath = resolve(dirname(fileURLToPath(import.meta.url)), '../dist')
 
 app.use(cors())
 app.use(express.json())
@@ -130,6 +133,11 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok', database: mongoose.connection.readyState === 1 ? 'connected' : 'demo mode' })
 })
 
+app.use(express.static(distPath))
+app.get(/^(?!\/api(?:\/|$)).*/, (_req, res) => {
+  res.sendFile(resolve(distPath, 'index.html'))
+})
+
 if (process.env.MONGO_URI) {
   mongoose.connect(process.env.MONGO_URI)
     .then(() => console.log('MongoDB connected'))
@@ -138,4 +146,4 @@ if (process.env.MONGO_URI) {
   console.log('MONGO_URI not set; contact messages use temporary demo storage.')
 }
 
-app.listen(port, () => console.log(`Nomi News API listening on http://localhost:${port}`))
+app.listen(port, () => console.log(`Nomi News API listening on port ${port}`))
