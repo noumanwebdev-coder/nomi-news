@@ -3,10 +3,12 @@ import express from 'express'
 import cors from 'cors'
 import mongoose from 'mongoose'
 import Parser from 'rss-parser'
-import { dirname, resolve } from 'node:path'
+import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const app = express()
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
 const port = process.env.PORT || 5000
 const distPath = resolve(dirname(fileURLToPath(import.meta.url)), '../dist')
 
@@ -145,5 +147,20 @@ if (process.env.MONGO_URI) {
 } else {
   console.log('MONGO_URI not set; contact messages use temporary demo storage.')
 }
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = path.dirname(__filename)
+
+app.use(express.static(path.join(__dirname, '../dist')))
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'))
+})
+app.use(express.static(path.join(__dirname, '../dist')))
+
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../dist/index.html'))
+})
 app.listen(port, () => console.log(`Nomi News API listening on port ${port}`))
